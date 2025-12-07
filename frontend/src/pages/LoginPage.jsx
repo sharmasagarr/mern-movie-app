@@ -380,7 +380,7 @@ const LoginPage = () => {
           )}
 
           {/* Submit Button */}
-          <Box mt={3} display="flex" flexDirection={{xs: "column", sm: "row"}} justifyContent="space-between" alignItems="center">
+          <Box mt={3} display="flex" flexDirection={{xs: "column-reverse", sm: "row"}} justifyContent="space-between" alignItems="center">
             {/* Additional Info */}
             {mode === "login" ? (
               <Typography variant="body2" color="text.secondary" mt={2} textAlign="center">
