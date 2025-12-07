@@ -15,7 +15,6 @@ Includes **JWT authentication**, **admin/user roles**, **pagination**, **sorting
 - [Features](#-features)
 - [Tech Stack](#-tech-stack)
 - [Architecture](#-architecture)
-- [Screenshots](#-screenshots)
 - [Frontend Structure](#-frontend-structure)
 - [Backend Structure](#-backend-structure)
 - [Installation](#-installation)

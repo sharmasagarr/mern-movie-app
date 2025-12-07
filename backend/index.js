@@ -6,6 +6,11 @@ import errorHandler from "./middleware/errorHandler.js";
 import authRoutes from "./routes/authRoutes.js";
 import movieRoutes from "./routes/movieRoutes.js";
 import { startMovieWorker } from "./queue/movieQueue.js";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
@@ -28,7 +33,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/movies", movieRoutes);
 
 app.get("/", (req, res) => {
-  res.send("Movie API is running");
+  res.sendFile(path.join(__dirname, "docs", "index.html"));
 });
 
 // Error handler
