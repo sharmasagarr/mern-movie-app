@@ -148,8 +148,6 @@ frontend/
 
 ```
 backend/
-├── docs/
-│   └── index.html
 │
 ├── models/
 │   ├── Movie.js

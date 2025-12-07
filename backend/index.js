@@ -6,11 +6,6 @@ import errorHandler from "./middleware/errorHandler.js";
 import authRoutes from "./routes/authRoutes.js";
 import movieRoutes from "./routes/movieRoutes.js";
 import { startMovieWorker } from "./queue/movieQueue.js";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
@@ -33,7 +28,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/movies", movieRoutes);
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "docs", "index.html"));
+  res.redirect("https://documenter.getpostman.com/view/41013628/2sB3dPTqqf");
 });
 
 // Error handler
