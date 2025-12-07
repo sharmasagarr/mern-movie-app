@@ -4,30 +4,30 @@ A fully responsive, feature-rich movie management application built using the **
 Includes **JWT authentication**, **admin/user roles**, **pagination**, **sorting**, **search**, and a clean modern UI built in **React + MUI**.
 
 🚀 **Live Frontend:** https://mern-movie-application.vercel.app  
-🔗 **Backend API:** https://mern-movie-app-backend.vercel.app/api  
+🔗 **Backend API:** https://mern-movie-app-backend.vercel.app  
 📦 **GitHub Repository:** https://github.com/sharmasagarr/mern-movie-app
 
 ---
 
 ## 📘 Table of Contents
 
-- [Overview](#overview)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Architecture](#architecture)
-- [Screenshots](#screenshots)
-- [Frontend Structure](#frontend-structure)
-- [Backend Structure](#backend-structure)
-- [Installation](#installation)
-- [Environment Variables](#environment-variables)
-- [Running the App](#running-the-app)
-- [API Documentation](#api-documentation)
-- [Database Schema](#database-schema)
-- [Authentication Flow](#authentication-flow)
-- [Admin Features](#admin-features)
-- [Deployment](#deployment)
-- [Troubleshooting](#troubleshooting)
-- [License](#license)
+- [Overview](#-Overview)
+- [Features](#-features)
+- [Tech Stack](#-tech-stack)
+- [Architecture](#-architecture)
+- [Screenshots](#-screenshots)
+- [Frontend Structure](#-frontend-structure)
+- [Backend Structure](#-backend-structure)
+- [Installation](#-installation)
+- [Environment Variables](#-environment-variables)
+- [Running the App](#-running-the-app)
+- [API Documentation](#-api-documentation)
+- [Database Schema](#-database-schema)
+- [Authentication Flow](#-authentication-flow)
+- [Admin Features](#-admin-features)
+- [Deployment](#-deployment)
+- [Troubleshooting](#-troubleshooting)
+- [License](#-license)
 
 ---
 
