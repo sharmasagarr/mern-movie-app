@@ -14,7 +14,7 @@ Includes **JWT authentication**, **admin/user roles**, **pagination**, **sorting
 - [Overview](#-Overview)
 - [Features](#-features)
 - [Tech Stack](#-tech-stack)
-- [Architecture](#-architecture)
+- [Architecture](#%EF%B8%8F-architecture)
 - [Frontend Structure](#-frontend-structure)
 - [Backend Structure](#-backend-structure)
 - [Installation](#-installation)
@@ -108,8 +108,6 @@ React (UI) → Axios → Express API → MongoDB
 
 ---
 
----
-
 # 📁 Frontend Structure
 
 ```
@@ -149,6 +147,9 @@ frontend/
 
 ```
 backend/
+├── docs/
+│   └── index.html
+│
 ├── models/
 │   ├── Movie.js
 │   └── User.js
