@@ -42,7 +42,7 @@ const LoginPage = () => {
         // role is optional; backend defaults to "user"
         await register(registerForm);
       }
-      toast.success("Login Successful", {id: "login"});
+      toast.success(mode === "login" ? "Login successful" : "Signup successful", {id: "login"});
       navigate("/");
     } catch (err) {
       toast.error(mode === "login" ? "Login failed" : "Signup failed", {id: "login"});
