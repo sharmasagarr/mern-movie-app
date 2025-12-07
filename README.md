@@ -17,13 +17,14 @@ Includes **JWT authentication**, **admin/user roles**, **pagination**, **sorting
 - [Architecture](#%EF%B8%8F-architecture)
 - [Frontend Structure](#-frontend-structure)
 - [Backend Structure](#-backend-structure)
-- [Installation](#-installation)
+- [Installation](#%EF%B8%8F-installation)
 - [Environment Variables](#-environment-variables)
-- [Running the App](#-running-the-app)
 - [API Documentation](#-api-documentation)
-- [Database Schema](#-database-schema)
+- [Authentication Routes](#-authentication-routes)
+- [Movie Routes](#-movie-routes)
+- [Database Schema](#%EF%B8%8F-database-schema)
 - [Authentication Flow](#-authentication-flow)
-- [Admin Features](#-admin-features)
+- [Admin Features](#%EF%B8%8F-admin-features)
 - [Deployment](#-deployment)
 - [Troubleshooting](#-troubleshooting)
 - [License](#-license)
@@ -261,49 +262,29 @@ npm run dev
 
 ---
 
-## 🔑 Authentication
+## 🔑 Authentication Routes
 
 ### POST `/auth/register`
 
-**Request**
-```json
-{
-  "name": "Sagar",
-  "email": "sagar@example.com",
-  "password": "12345"
-}
-```
-
----
-
 ### POST `/auth/login`
-
-**Response**
-```json
-{
-  "user": {
-    "id": "123",
-    "name": "Sagar",
-    "email": "sagar@example.com",
-    "role": "user"
-  },
-  "token": "jwt_token_here"
-}
-```
 
 ---
 
 ## 🎬 Movie Routes
 
-### GET `/movies?page=1&limit=10`
+### GET /movies?page=1&limit=10
 
-### GET `/movies/:id`
+### GET /movies/sorted?sortBy=rating&order=desc&page=1&limit=10
 
-### POST `/movies` (Admin only)
+### GET /movies/search?q=keyword&ratingMin=5&ratingMax=9
 
-### PUT `/movies/:id` (Admin only)
+### GET /movies/:id
 
-### DELETE `/movies/:id` (Admin only)
+### POST /movies (Admin only)
+
+### PUT /movies/:id (Admin only)
+
+### DELETE /movies/:id (Admin only)
 
 ---
 
@@ -318,6 +299,7 @@ npm run dev
   releaseDate: Date,
   rating: Number,
   duration: Number,
+  imdbId: String,
   posterUrl: String
 }
 ```
