@@ -110,7 +110,7 @@ export const addMovie = async (req, res, next) => {
       posterUrl
     } = req.body;
 
-    // Validation: Check for required fields
+    // ========== REQUIRED FIELDS CHECK ==========
     const requiredFields = {
       title: "Title",
       description: "Description",
@@ -135,7 +135,7 @@ export const addMovie = async (req, res, next) => {
       }
     }
 
-    // Check if there are any validation errors
+    // Return early if required fields are missing or empty
     if (missingFields.length > 0 || emptyFields.length > 0) {
       const errors = [];
       
@@ -154,76 +154,202 @@ export const addMovie = async (req, res, next) => {
       });
     }
 
-    // Additional validation for specific fields
-    
-    // Validate rating (should be between 0 and 10)
+    // ========== DETAILED FIELD VALIDATION ==========
+    const errors = [];
+    const validatedData = {};
+
+    // Validate title
+    if (typeof title !== 'string') {
+      errors.push("Title must be a string");
+    } else if (title.trim().length < 1 || title.trim().length > 200) {
+      errors.push("Title must be between 1 and 200 characters");
+    } else {
+      validatedData.title = title.trim();
+    }
+
+    // Validate description
+    if (typeof description !== 'string') {
+      errors.push("Description must be a string");
+    } else if (description.trim().length < 10) {
+      errors.push("Description must be at least 10 characters");
+    } else if (description.trim().length > 1000) {
+      errors.push("Description must not exceed 1000 characters");
+    } else {
+      validatedData.description = description.trim();
+    }
+
+    // Validate rating
     const ratingNum = Number.parseFloat(rating);
-    if (Number.isNaN(ratingNum) || ratingNum < 0 || ratingNum > 10) {
-      return res.status(400).json({
-        success: false,
-        message: "Validation failed",
-        errors: ["Rating must be a number between 0 and 10"]
-      });
+    if (Number.isNaN(ratingNum)) {
+      errors.push("Rating must be a valid number");
+    } else if (ratingNum < 0 || ratingNum > 10) {
+      errors.push("Rating must be between 0 and 10");
+    } else {
+      validatedData.rating = ratingNum;
     }
 
-    // Validate duration (should be positive number)
+    // Validate duration
     const durationNum = Number.parseInt(duration);
-    if (Number.isNaN(durationNum) || durationNum <= 0) {
-      return res.status(400).json({
-        success: false,
-        message: "Validation failed",
-        errors: ["Duration must be a positive number (in minutes)"]
-      });
+    if (Number.isNaN(durationNum)) {
+      errors.push("Duration must be a valid number");
+    } else if (durationNum <= 0) {
+      errors.push("Duration must be a positive number (in minutes)");
+    } else if (durationNum > 600) {
+      errors.push("Duration cannot exceed 600 minutes (10 hours)");
+    } else {
+      validatedData.duration = durationNum;
     }
 
-    // Validate releaseDate (should be valid date)
+    // Validate releaseDate
     const parsedDate = new Date(releaseDate);
     if (Number.isNaN(parsedDate.getTime())) {
+      errors.push("Release Date must be a valid date");
+    } else {
+      const currentYear = new Date().getFullYear();
+      const releaseYear = parsedDate.getFullYear();
+      if (releaseYear < 1888 || releaseYear > currentYear + 5) {
+        errors.push(`Release year must be between 1888 and ${currentYear + 5}`);
+      } else {
+        validatedData.releaseDate = parsedDate;
+      }
+    }
+
+    // Validate imdbId
+    if (typeof imdbId !== 'string') {
+      errors.push("IMDb ID must be a string");
+    } else {
+      const imdbPattern = /^tt\d{7,8}$/i;
+      if (!imdbPattern.test(imdbId.trim())) {
+        errors.push("IMDb ID must be in format 'tt' followed by 7-8 digits (e.g., tt0111161)");
+      } else {
+        validatedData.imdbId = imdbId.trim();
+      }
+    }
+
+    // Validate posterUrl
+    if (typeof posterUrl !== 'string') {
+      errors.push("Poster URL must be a string");
+    } else {
+      const urlPattern = /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i;
+      if (!urlPattern.test(posterUrl.trim())) {
+        errors.push("Poster URL must be a valid HTTP/HTTPS URL ending with image extension (jpg, jpeg, png, gif, webp)");
+      } else {
+        validatedData.posterUrl = posterUrl.trim();
+      }
+    }
+
+    // Return validation errors if any
+    if (errors.length > 0) {
       return res.status(400).json({
         success: false,
         message: "Validation failed",
-        errors: ["Release Date must be a valid date"]
+        errors
       });
     }
 
-    // Validate posterUrl (basic URL format check)
-    const urlPattern = /^https?:\/\/.+/i;
-    if (!urlPattern.test(posterUrl)) {
-      return res.status(400).json({
+    // ========== CHECK FOR DUPLICATE MOVIE ==========
+    // Optional: Check if movie with same IMDb ID already exists
+    const existingMovie = await Movie.findOne({ imdbId: validatedData.imdbId });
+    if (existingMovie) {
+      return res.status(409).json({
         success: false,
-        message: "Validation failed",
-        errors: ["Poster URL must be a valid HTTP/HTTPS URL"]
+        message: "Movie already exists",
+        errors: [`A movie with IMDb ID ${validatedData.imdbId} already exists`]
       });
     }
 
-    // All validations passed - proceed with job creation
+    // ========== ENQUEUE MOVIE FOR PROCESSING ==========
     const jobId = crypto.randomUUID();
 
     const payload = {
       jobId,
-      title: title.trim(),
-      description: description.trim(),
-      rating: ratingNum,
-      releaseDate: parsedDate,
-      duration: durationNum,
-      imdbId: imdbId.trim(),
-      posterUrl: posterUrl.trim()
+      ...validatedData,
+      createdBy: req.user?._id // Assuming you have user in request from auth middleware
     };
 
     // Save job status
     jobs.set(jobId, { status: "pending", movieId: null });
 
+    // Enqueue for lazy insertion
     enqueueMovie(payload);
 
     res.status(202).json({
       success: true,
       message: "Movie accepted for insertion via queue",
-      jobId
+      jobId,
+      data: {
+        title: validatedData.title,
+        imdbId: validatedData.imdbId,
+        estimatedProcessingTime: "2-5 seconds"
+      }
     });
+
+  } catch (err) {
+    // Handle mongoose validation errors
+    if (err.name === 'ValidationError') {
+      const errors = Object.values(err.errors).map(e => e.message);
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        errors
+      });
+    }
+
+    // Handle duplicate key errors
+    if (err.code === 11000) {
+      const field = Object.keys(err.keyPattern)[0];
+      return res.status(409).json({
+        success: false,
+        message: "Duplicate entry",
+        errors: [`A movie with this ${field} already exists`]
+      });
+    }
+
+    next(err);
+  }
+};
+
+// GET /api/movies/job/:jobId - Check job status
+export const getJobStatus = async (req, res, next) => {
+  try {
+    const { jobId } = req.params;
+
+    if (!jobId) {
+      return res.status(400).json({
+        success: false,
+        message: "Job ID is required"
+      });
+    }
+
+    const jobStatus = jobs.get(jobId);
+
+    if (!jobStatus) {
+      return res.status(404).json({
+        success: false,
+        message: "Job not found",
+        errors: ["Invalid or expired job ID"]
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        jobId,
+        status: jobStatus.status,
+        movieId: jobStatus.movieId,
+        message: jobStatus.status === "completed" 
+          ? "Movie added successfully" 
+          : jobStatus.status === "failed"
+          ? "Movie addition failed"
+          : "Movie is being processed"
+      }
+    });
+
   } catch (err) {
     next(err);
   }
 };
+
 
 // PUT /api/movies/:id (admin)
 export const updateMovie = async (req, res, next) => {
