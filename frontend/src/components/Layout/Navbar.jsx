@@ -8,6 +8,7 @@ import Box from "@mui/material/Box";
 import { Link as RouterLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { useState, useEffect } from "react";
+import LogoutIcon from "@mui/icons-material/Logout";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -67,7 +68,7 @@ const Navbar = () => {
             justifyContent: "space-between",
             alignItems: "center",
             mb: { xs: 1, sm: 0 },
-            display: { xs: "flex", sm: "none" }, // show only on mobile
+            display: { xs: "flex", sm: "none" },
             paddingX: 2
           }}
         >
@@ -92,7 +93,7 @@ const Navbar = () => {
                 display: "flex",
                 alignItems: "center",
               }}
-              onClick={(e) => e.stopPropagation()} // prevent closing when tapping inside
+              onClick={(e) => e.stopPropagation()}
             >
               <Box
                 onClick={(e) => {
@@ -111,6 +112,10 @@ const Navbar = () => {
                   cursor: "pointer",
                   fontWeight: "bold",
                   userSelect: "none",
+                  transition: "transform 0.2s",
+                  "&:hover": {
+                    transform: "scale(1.05)"
+                  }
                 }}
               >
                 {getInitials(user.name)}
@@ -124,20 +129,91 @@ const Navbar = () => {
                     right: 0,
                     backgroundColor: "#321b2fff",
                     color: "white",
-                    borderRadius: 1,
+                    borderRadius: 2,
                     boxShadow: 4,
-                    p: 1,
                     zIndex: 2000,
-                    minWidth: 120,
+                    minWidth: 200,
+                    overflow: "hidden"
                   }}
                 >
+                  {/* User Info Section */}
+                  <Box
+                    sx={{
+                      p: 2,
+                      borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1.5
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: "50%",
+                        backgroundColor: "white",
+                        color: "black",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontWeight: "bold",
+                        fontSize: "0.9rem"
+                      }}
+                    >
+                      {getInitials(user.name)}
+                    </Box>
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                      <Typography
+                        variant="subtitle2"
+                        sx={{
+                          fontWeight: "bold",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap"
+                        }}
+                      >
+                        {user.name}
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: "rgba(255, 255, 255, 0.7)",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          display: "block"
+                        }}
+                      >
+                        {user.email}
+                      </Typography>
+                      {user.role === "admin" && (
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            color: "#90caf9",
+                            fontWeight: "bold",
+                            fontSize: "0.7rem"
+                          }}
+                        >
+                          Admin
+                        </Typography>
+                      )}
+                    </Box>
+                  </Box>
+
+                  {/* Logout Button */}
                   <Button
                     fullWidth
                     onClick={handleLogout}
+                    startIcon={<LogoutIcon />}
                     sx={{
                       color: "white",
                       justifyContent: "flex-start",
                       textTransform: "none",
+                      p: 1.5,
+                      "&:hover": {
+                        backgroundColor: "rgba(255, 255, 255, 0.1)"
+                      }
                     }}
                   >
                     Logout
@@ -275,6 +351,10 @@ const Navbar = () => {
                   cursor: "pointer",
                   fontWeight: "bold",
                   userSelect: "none",
+                  transition: "transform 0.2s",
+                  "&:hover": {
+                    transform: "scale(1.05)"
+                  }
                 }}
               >
                 {getInitials(user.name)}
@@ -289,19 +369,91 @@ const Navbar = () => {
                     right: 0,
                     backgroundColor: "#321b2fff",
                     color: "white",
-                    borderRadius: 1,
+                    borderRadius: 2,
                     boxShadow: 4,
-                    p: 1,
-                    zIndex: 2000
+                    zIndex: 2000,
+                    minWidth: 240,
+                    overflow: "hidden"
                   }}
                 >
+                  {/* User Info Section */}
+                  <Box
+                    sx={{
+                      p: 2,
+                      borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1.5
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: "50%",
+                        backgroundColor: "white",
+                        color: "black",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontWeight: "bold",
+                        fontSize: "0.9rem"
+                      }}
+                    >
+                      {getInitials(user.name)}
+                    </Box>
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                      <Typography
+                        variant="subtitle2"
+                        sx={{
+                          fontWeight: "bold",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap"
+                        }}
+                      >
+                        {user.name}
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: "rgba(255, 255, 255, 0.7)",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          display: "block"
+                        }}
+                      >
+                        {user.email}
+                      </Typography>
+                      {user.role === "admin" && (
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            color: "#90caf9",
+                            fontWeight: "bold",
+                            fontSize: "0.7rem"
+                          }}
+                        >
+                          Admin
+                        </Typography>
+                      )}
+                    </Box>
+                  </Box>
+
+                  {/* Logout Button */}
                   <Button
                     fullWidth
                     onClick={handleLogout}
+                    startIcon={<LogoutIcon />}
                     sx={{
                       color: "white",
                       justifyContent: "flex-start",
-                      textTransform: "none"
+                      textTransform: "none",
+                      p: 1.5,
+                      "&:hover": {
+                        backgroundColor: "rgba(255, 255, 255, 0.1)"
+                      }
                     }}
                   >
                     Logout
@@ -317,7 +469,7 @@ const Navbar = () => {
               component={RouterLink}
               to="/login"
               sx={{ 
-                display: { xs: "none", sm: "inline-flex" }, // hide on mobile
+                display: { xs: "none", sm: "inline-flex" },
                 position: "relative",
                 "&::after": isActiveRoute("/login") ? {
                   content: '""',

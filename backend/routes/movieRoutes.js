@@ -9,6 +9,7 @@ import {
   updateMovie,
   deleteMovie
 } from "../controllers/movieController.js";
+import jobs from "../utils/jobs.js";
 
 const router = Router();
 
@@ -20,6 +21,15 @@ router.get("/", getMovies);
 
 // 🔹 Admin-only routes
 router.post("/", auth, authorize("admin"), addMovie);
+router.get("/job/:jobId", (req, res) => {
+  const job = jobs.get(req.params.jobId);
+
+  if (!job) {
+    return res.status(404).json({ message: "Invalid job id" });
+  }
+
+  res.json(job);
+});
 router.put("/:id", auth, authorize("admin"), updateMovie);
 router.delete("/:id", auth, authorize("admin"), deleteMovie);
 

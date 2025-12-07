@@ -7,8 +7,11 @@ const movieSchema = new mongoose.Schema(
     rating: { type: Number, default: 0 }, // e.g. IMDb rating
     releaseDate: { type: Date },
     duration: { type: Number }, // minutes
-    imdbId: { type: String }, // optional reference to IMDb
-    posterUrl: { type: String } // optional image url
+    imdbId: { type: String }, 
+    posterUrl: { type: String },
+    
+    // Required for queue worker to mark completion
+    jobId: { type: String, required: false },
   },
   { timestamps: true }
 );

@@ -23,13 +23,18 @@ import axiosClient from "../api/axiosClient.js";
 import MovieTable from "../components/Movies/MovieDetailView.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const SearchPage = () => {
   const [query, setQuery] = useState("");
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false); // Track if search was performed
+  const [hasSearched, setHasSearched] = useState(false);
+  
+  // Delete modal states
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedMovie, setSelectedMovie] = useState(null);
   
   // Filter states
   const [yearRange, setYearRange] = useState([1900, new Date().getFullYear()]);
@@ -43,12 +48,15 @@ const SearchPage = () => {
     e.preventDefault();
     if (!query.trim()) return;
     setLoading(true);
-    setHasSearched(true); // Mark that search was performed
+    setHasSearched(true);
     try {
       const res = await axiosClient.get("/movies/search", {
         params: { q: query }
       });
       setMovies(res.data.data);
+    } catch (error) {
+      console.error("Error searching movies:", error);
+      toast.error("Search failed");
     } finally {
       setLoading(false);
     }
@@ -57,17 +65,51 @@ const SearchPage = () => {
   const handleClearSearch = () => {
     setQuery("");
     setMovies([]);
-    setHasSearched(false); // Reset search state
+    setHasSearched(false);
     handleClearFilters();
   };
 
   const handleEdit = (movie) => navigate(`/admin/edit/${movie._id}`);
 
-  const handleDelete = async (movie) => {
-    if (!window.confirm(`Delete movie "${movie.title}"?`)) return;
-    await axiosClient.delete(`/movies/${movie._id}`);
-    const res = await axiosClient.get("/movies/search", { params: { q: query } });
-    setMovies(res.data.data);
+  // Open delete confirmation modal
+  const openDeleteDialog = (movie) => {
+    setSelectedMovie(movie);
+    setDeleteDialogOpen(true);
+  };
+
+  // Close delete confirmation modal
+  const closeDeleteDialog = () => {
+    setDeleteDialogOpen(false);
+    setSelectedMovie(null);
+  };
+
+  // Confirm delete with optimistic update
+  const handleDeleteConfirm = async () => {
+    const movieToDelete = selectedMovie;
+    
+    try {
+      // Optimistically update UI immediately
+      setMovies(prev => prev.filter(m => m._id !== movieToDelete._id));
+      
+      closeDeleteDialog();
+      toast.success(`Deleted "${movieToDelete.title}"`);
+      
+      // Delete on server
+      await axiosClient.delete(`/movies/${movieToDelete._id}`);
+      
+    } catch (err) {
+      // If server delete fails, revert by refetching
+      toast.error("Delete failed, reverting changes");
+      console.error("Error deleting movie:", err);
+      
+      // Refetch search results to restore correct state
+      if (query.trim()) {
+        const res = await axiosClient.get("/movies/search", { 
+          params: { q: query } 
+        });
+        setMovies(res.data.data);
+      }
+    }
   };
 
   const handleClearFilters = () => {
@@ -179,7 +221,7 @@ const SearchPage = () => {
               onClick={handleClearSearch}
               startIcon={<ClearIcon />}
               color="error"
-              sx={{ flex: { xs: 1, sm: 'initial' }, minWidth: { xs: 'auto', sm: 120 } }}
+              sx={{ flex: { xs: 1, sm: 'initial' }, minWidth: { xs: 'auto', sm: 120 }, borderRadius: 20 }}
             >
               Clear
             </Button>
@@ -351,7 +393,7 @@ const SearchPage = () => {
           page={1}
           limit={filteredMovies.length}
           onEdit={handleEdit}
-          onDelete={handleDelete}
+          onDelete={openDeleteDialog}
           isAdmin={user?.role === "admin"}
           user={user}
         />
@@ -394,22 +436,22 @@ const SearchPage = () => {
             overflowY: "auto",
             overflowX: "hidden",
 
-            /* 🔥 Custom thin scrollbar */
-            scrollbarWidth: "thin",              // Firefox
+            /* Custom thin scrollbar */
+            scrollbarWidth: "thin",
             scrollbarColor: "rgba(255,255,255,0.2) transparent",
 
             "&::-webkit-scrollbar": {
-              width: "6px",                      // thin scrollbar
+              width: "6px",
             },
             "&::-webkit-scrollbar-track": {
-              background: "transparent",         // no highlight in dark mode
+              background: "transparent",
             },
             "&::-webkit-scrollbar-thumb": {
-              backgroundColor: "rgba(255,255,255,0.2)", // subtle light thumb
+              backgroundColor: "rgba(255,255,255,0.2)",
               borderRadius: "10px",
             },
             "&::-webkit-scrollbar-thumb:hover": {
-              backgroundColor: "rgba(255,255,255,0.35)", // slightly brighter on hover
+              backgroundColor: "rgba(255,255,255,0.35)",
             },
           }}
         >
@@ -509,6 +551,56 @@ const SearchPage = () => {
             sx={{ width: { xs: '100%', sm: 'auto' } }}
           >
             Apply Filters
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* DELETE CONFIRMATION DIALOG */}
+      <Dialog 
+        open={deleteDialogOpen} 
+        onClose={closeDeleteDialog} 
+        maxWidth="xs" 
+        fullWidth
+        PaperProps={{
+          sx: { 
+            borderRadius: 2,
+            m: { xs: 2, sm: 4 }
+          }
+        }}
+      >
+        <DialogTitle sx={{ pb: 2 }}>
+          <Typography variant="h6" fontWeight="bold">
+            Confirm Delete
+          </Typography>
+        </DialogTitle>
+        
+        <Divider />
+        
+        <DialogContent sx={{ pt: 3, pb: 2 }}>
+          <Typography variant="body1">
+            Are you sure you want to delete{" "}
+            <Typography component="span" fontWeight="bold" color="error">
+              {selectedMovie?.title}
+            </Typography>
+            ?
+          </Typography>
+        </DialogContent>
+        
+        <Divider />
+        
+        <DialogActions sx={{ p: 2, gap: 1 }}>
+          <Button 
+            onClick={closeDeleteDialog}
+            variant="outlined"
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleDeleteConfirm} 
+            color="error" 
+            variant="contained"
+          >
+            Delete
           </Button>
         </DialogActions>
       </Dialog>

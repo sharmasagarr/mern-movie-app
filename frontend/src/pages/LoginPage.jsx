@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
+import toast from "react-hot-toast"
 
 const LoginPage = () => {
   const { login, register, loading } = useAuth();
@@ -41,9 +42,11 @@ const LoginPage = () => {
         // role is optional; backend defaults to "user"
         await register(registerForm);
       }
+      toast.success("Login Successful", {id: "login"});
       navigate("/");
     } catch (err) {
-      alert(
+      toast.error(mode === "login" ? "Login failed" : "Signup failed", {id: "login"});
+      console.error(
         err?.response?.data?.message ||
           (mode === "login" ? "Login failed" : "Signup failed")
       );

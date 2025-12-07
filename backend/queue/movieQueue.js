@@ -1,4 +1,5 @@
 import Movie from "../models/Movie.js";
+import jobs from "../utils/jobs.js";
 
 const queue = [];
 
@@ -15,9 +16,18 @@ export const startMovieWorker = () => {
     if (queue.length === 0) return;
 
     const batch = queue.splice(0, queue.length);
+
     try {
-      await Movie.insertMany(batch, { ordered: false });
-      console.log(`Inserted ${batch.length} movies from queue`);
+      const result = await Movie.insertMany(batch, { ordered: false });
+
+      // Update job results
+      result.forEach(movie => {
+        if (movie.jobId) {
+          jobs.set(movie.jobId, { status: "completed", movieId: movie._id });
+        }
+      });
+
+      console.log(`Inserted ${batch.length} movies`);
     } catch (err) {
       console.error("Queue insert error:", err.message);
     }

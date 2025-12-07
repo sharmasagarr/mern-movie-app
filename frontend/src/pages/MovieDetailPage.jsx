@@ -1,10 +1,8 @@
-import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   Box,
   Container,
   Typography,
-  Chip,
   IconButton,
   Stack,
   Paper
@@ -114,15 +112,6 @@ const MovieDetailPage = () => {
               {formatDuration(movie.duration)}
             </Typography>
           </Stack>
-
-          {/* Genres */}
-          {movie.genres?.length > 0 && (
-            <Stack direction="row" spacing={1} sx={{ mb: 2, flexWrap: "wrap" }}>
-              {movie.genres.map((g) => (
-                <Chip key={g} label={g} variant="outlined" />
-              ))}
-            </Stack>
-          )}
 
           {/* Description */}
           <Typography
