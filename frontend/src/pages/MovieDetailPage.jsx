@@ -19,7 +19,7 @@ const formatDuration = (min) => {
   return `${h}h ${m}m`;
 };
 
-const MovieDetails = () => {
+const MovieDetailPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const movie = location.state;
@@ -138,4 +138,4 @@ const MovieDetails = () => {
   );
 };
 
-export default MovieDetails;
+export default MovieDetailPage;

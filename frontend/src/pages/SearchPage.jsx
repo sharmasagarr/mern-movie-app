@@ -20,7 +20,7 @@ import ClearIcon from "@mui/icons-material/Clear";
 import CloseIcon from "@mui/icons-material/Close";
 import SearchIcon from "@mui/icons-material/Search";
 import axiosClient from "../api/axiosClient.js";
-import MovieTable from "../components/Movies/MovieTable.jsx";
+import MovieTable from "../components/Movies/MovieDetailView.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
 

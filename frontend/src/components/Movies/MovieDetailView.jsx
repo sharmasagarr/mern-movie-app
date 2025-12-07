@@ -21,7 +21,7 @@ const formatDuration = (minutes) => {
   return `${h}h ${m}m`;
 };
 
-const MovieTable = ({
+const MovieDetailView = ({
   movies,
   page,
   limit,
@@ -276,4 +276,4 @@ const MovieTable = ({
   );
 };
 
-export default MovieTable;
+export default MovieDetailView;

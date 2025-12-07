@@ -14,7 +14,7 @@ import ViewHeadlineIcon from "@mui/icons-material/ViewHeadline";
 import axiosClient from "../api/axiosClient.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
-import MovieTable from "../components/Movies/MovieTable.jsx";
+import MovieTable from "../components/Movies/MovieDetailView.jsx";
 import MovieGridView from "../components/Movies/MovieGridView.jsx";
 import MovieCompactView from "../components/Movies/MovieCompactView.jsx";
 import FilterListIcon from "@mui/icons-material/FilterList";

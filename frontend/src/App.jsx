@@ -3,7 +3,7 @@ import { ThemeProvider, CssBaseline } from "@mui/material";
 import theme from "./theme.js";
 import Navbar from "./components/Layout/Navbar.jsx";
 import HomePage from "./pages/HomePage.jsx";
-import MovieDetails from "./pages/MovieDetails.jsx";
+import MovieDetailPage from "./pages/MovieDetailPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import SearchPage from "./pages/SearchPage.jsx";
 import AddMoviePage from "./pages/AddMoviePage.jsx";
@@ -20,7 +20,7 @@ function App() {
           <Navbar />
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/movie/:id" element={<MovieDetails />} />
+            <Route path="/movie/:id" element={<MovieDetailPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/search" element={<SearchPage />} />
             <Route
