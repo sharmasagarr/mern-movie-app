@@ -277,7 +277,7 @@ npm run dev
 
 ### GET /movies/sorted?sortBy=rating&order=desc&page=1&limit=10
 
-### GET /movies/search?q=keyword&ratingMin=5&ratingMax=9
+### GET /movies/search?q=keyword
 
 ### GET /movies/:id
 
@@ -301,7 +301,8 @@ npm run dev
   rating: Number,
   duration: Number,
   imdbId: String,
-  posterUrl: String
+  posterUrl: String,
+  jobId: String
 }
 ```
 
