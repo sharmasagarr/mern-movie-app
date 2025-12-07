@@ -158,7 +158,7 @@ export const addMovie = async (req, res, next) => {
     
     // Validate rating (should be between 0 and 10)
     const ratingNum = Number.parseFloat(rating);
-    if (Number.isNaNr.isNaNr.isNaN(ratingNum) || ratingNum < 0 || ratingNum > 10) {
+    if (Number.isNaN(ratingNum) || ratingNum < 0 || ratingNum > 10) {
       return res.status(400).json({
         success: false,
         message: "Validation failed",
@@ -228,15 +228,237 @@ export const addMovie = async (req, res, next) => {
 // PUT /api/movies/:id (admin)
 export const updateMovie = async (req, res, next) => {
   try {
+    const { id } = req.params;
     const updates = req.body;
-    const movie = await Movie.findByIdAndUpdate(req.params.id, updates, {
-      new: true
+
+    // Validate MongoDB ObjectId
+    if (!id || !id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        errors: ["Invalid movie ID format"]
+      });
+    }
+
+    // Check if movie exists
+    const existingMovie = await Movie.findById(id);
+    if (!existingMovie) {
+      return res.status(404).json({
+        success: false,
+        message: "Movie not found"
+      });
+    }
+
+    // Check if update body is empty
+    if (!updates || Object.keys(updates).length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        errors: ["No update fields provided"]
+      });
+    }
+
+    // Define allowed fields for update
+    const allowedFields = [
+      'title',
+      'description',
+      'rating',
+      'releaseDate',
+      'duration',
+      'imdbId',
+      'posterUrl'
+    ];
+
+    // Check for invalid fields
+    const invalidFields = Object.keys(updates).filter(
+      field => !allowedFields.includes(field)
+    );
+
+    if (invalidFields.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        errors: [`Invalid fields: ${invalidFields.join(', ')}`]
+      });
+    }
+
+    const errors = [];
+    const validatedUpdates = {};
+
+    // Validate each field if provided
+    
+    // Validate title
+    if (updates.hasOwnProperty('title')) {
+      if (typeof updates.title !== 'string') {
+        errors.push("Title must be a string");
+      } else if (updates.title.trim() === '') {
+        errors.push("Title cannot be empty");
+      } else if (updates.title.trim().length < 1 || updates.title.trim().length > 200) {
+        errors.push("Title must be between 1 and 200 characters");
+      } else {
+        validatedUpdates.title = updates.title.trim();
+      }
+    }
+
+    // Validate description
+    if (updates.hasOwnProperty('description')) {
+      if (typeof updates.description !== 'string') {
+        errors.push("Description must be a string");
+      } else if (updates.description.trim() === '') {
+        errors.push("Description cannot be empty");
+      } else if (updates.description.trim().length < 10) {
+        errors.push("Description must be at least 10 characters");
+      } else {
+        validatedUpdates.description = updates.description.trim();
+      }
+    }
+
+    // Validate rating
+    if (updates.hasOwnProperty('rating')) {
+      const ratingNum = Number.parseFloat(updates.rating);
+      if (Number.isNaN(ratingNum)) {
+        errors.push("Rating must be a valid number");
+      } else if (ratingNum < 0 || ratingNum > 10) {
+        errors.push("Rating must be between 0 and 10");
+      } else {
+        validatedUpdates.rating = ratingNum;
+      }
+    }
+
+    // Validate duration
+    if (updates.hasOwnProperty('duration')) {
+      const durationNum = Number.parseInt(updates.duration);
+      if (Number.isNaN(durationNum)) {
+        errors.push("Duration must be a valid number");
+      } else if (durationNum <= 0) {
+        errors.push("Duration must be a positive number (in minutes)");
+      } else if (durationNum > 600) {
+        errors.push("Duration cannot exceed 600 minutes (10 hours)");
+      } else {
+        validatedUpdates.duration = durationNum;
+      }
+    }
+
+    // Validate releaseDate
+    if (updates.hasOwnProperty('releaseDate')) {
+      const parsedDate = new Date(updates.releaseDate);
+      if (Number.isNaN(parsedDate.getTime())) {
+        errors.push("Release Date must be a valid date");
+      } else {
+        const currentYear = new Date().getFullYear();
+        const releaseYear = parsedDate.getFullYear();
+        if (releaseYear < 1888 || releaseYear > currentYear + 5) {
+          errors.push(`Release year must be between 1888 and ${currentYear + 5}`);
+        } else {
+          validatedUpdates.releaseDate = parsedDate;
+        }
+      }
+    }
+
+    // Validate imdbId
+    if (updates.hasOwnProperty('imdbId')) {
+      if (typeof updates.imdbId !== 'string') {
+        errors.push("IMDb ID must be a string");
+      } else if (updates.imdbId.trim() === '') {
+        errors.push("IMDb ID cannot be empty");
+      } else {
+        // Optional: validate IMDb ID format (tt followed by digits)
+        const imdbPattern = /^tt\d{7,8}$/i;
+        if (!imdbPattern.test(updates.imdbId.trim())) {
+          errors.push("IMDb ID must be in format 'tt' followed by 7-8 digits (e.g., tt0111161)");
+        } else {
+          validatedUpdates.imdbId = updates.imdbId.trim();
+        }
+      }
+    }
+
+    // Validate posterUrl
+    if (updates.hasOwnProperty('posterUrl')) {
+      if (typeof updates.posterUrl !== 'string') {
+        errors.push("Poster URL must be a string");
+      } else if (updates.posterUrl.trim() === '') {
+        errors.push("Poster URL cannot be empty");
+      } else {
+        const urlPattern = /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i;
+        if (!urlPattern.test(updates.posterUrl.trim())) {
+          errors.push("Poster URL must be a valid HTTP/HTTPS URL ending with image extension (jpg, jpeg, png, gif, webp)");
+        } else {
+          validatedUpdates.posterUrl = updates.posterUrl.trim();
+        }
+      }
+    }
+
+    // If there are validation errors, return them
+    if (errors.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        errors
+      });
+    }
+
+    // Check if there are actually changes to make
+    let hasChanges = false;
+    for (const [key, value] of Object.entries(validatedUpdates)) {
+      if (existingMovie[key] !== value) {
+        hasChanges = true;
+        break;
+      }
+    }
+
+    if (!hasChanges) {
+      return res.status(400).json({
+        success: false,
+        message: "No changes detected",
+        errors: ["The provided values are the same as existing values"]
+      });
+    }
+
+    // Perform the update
+    const updatedMovie = await Movie.findByIdAndUpdate(
+      id,
+      { 
+        ...validatedUpdates,
+        updatedAt: new Date()
+      },
+      {
+        new: true,
+        runValidators: true
+      }
+    );
+
+    if (!updatedMovie) {
+      return res.status(404).json({
+        success: false,
+        message: "Movie not found after update"
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Movie updated successfully",
+      data: updatedMovie
     });
 
-    if (!movie) return res.status(404).json({ message: "Movie not found" });
-
-    res.json(movie);
   } catch (err) {
+    // Handle mongoose validation errors
+    if (err.name === 'ValidationError') {
+      const errors = Object.values(err.errors).map(e => e.message);
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        errors
+      });
+    }
+
+    // Handle mongoose cast errors (invalid ObjectId)
+    if (err.name === 'CastError') {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid movie ID format"
+      });
+    }
+
     next(err);
   }
 };
